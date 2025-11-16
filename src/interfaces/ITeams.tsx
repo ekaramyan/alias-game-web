@@ -2,6 +2,7 @@ export interface ITeam {
 	id: number
 	name: string
 	avatarUrl: string
+	score?: number
 }
 
 export interface IEditTeam {
@@ -11,4 +12,9 @@ export interface IEditTeam {
 	removeTeam: (id: number) => void
 	setEditAvatarOpen: (val: boolean) => void
 	setSelectedTeamId: (val: number | null) => void
+}
+
+export interface IUpdateTeam {
+	name: string
+	avatar_url?: string
 }

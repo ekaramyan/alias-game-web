@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Avatar, Grid, IconButton, Paper, TextField } from '@mui/material'
 import DeleteIcon from '@mui/icons-material/Delete'
 import type { IEditTeam } from '../interfaces/ITeams'
+import { useDebounce } from 'use-debounce'
 
 const EditTeam = ({
 	teamCount,
@@ -11,8 +12,17 @@ const EditTeam = ({
 	setEditAvatarOpen,
 	setSelectedTeamId,
 }: IEditTeam) => {
+	const [teamName, setTeamName] = useState(team.name)
+	const [debouncedTeamName] = useDebounce(teamName, 2000)
+
+	useEffect(() => {
+		if (debouncedTeamName !== team.name) {
+			handleNameChange(team.id, debouncedTeamName)
+		}
+	}, [debouncedTeamName])
+
 	return (
-		<Grid item size={{ xs: 12 }} key={team.id}>
+		<Grid size={{ xs: 12 }} key={team.id}>
 			<Paper
 				sx={{
 					p: 2,
@@ -37,8 +47,8 @@ const EditTeam = ({
 
 				<TextField
 					label='Название команды'
-					value={team.name}
-					onChange={e => handleNameChange(team.id, e.target.value)}
+					value={teamName}
+					onChange={e => setTeamName(e.target.value)}
 					fullWidth
 				/>
 
