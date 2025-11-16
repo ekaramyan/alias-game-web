@@ -8,24 +8,49 @@ import {
 	MenuItem,
 	Stack,
 } from '@mui/material'
+import { useNavigate } from 'react-router-dom'
+import SaveDialog from '../components/SaveDialog'
+import StatusAlert from '../components/StatusAlert'
 
 const timesPerRound = [30, 60, 90, 120]
 const winScores = [10, 25, 50, 75, 100, 125, 150]
+const difficulties = [
+	{ value: 'easy', title: 'Легко' },
+	{ value: 'medium', title: 'Средне' },
+	{ value: 'hard', title: 'Сложно' },
+]
 
 const Settings = () => {
+	const navigate = useNavigate()
+
 	const [timePerRound, setTimePerRound] = useState(timesPerRound[1])
 	const [winScore, setWinScore] = useState(winScores[1])
-	// const [language, setLanguage] = useState('ru')
 	const [difficulty, setDifficulty] = useState('medium')
 
+	const [snackbarOpen, setSnackbarOpen] = useState(false)
+	const [snackbarStatus, setSnackbarStatus] = useState<'success' | 'error'>(
+		'success'
+	)
+
+	const [dialogOpen, setDialogOpen] = useState(false)
+
 	const handleSubmit = () => {
-		// mockup
-		console.log({
-			timePerRound,
-			winScore,
-			// language,
-			difficulty,
-		})
+		try {
+			// mockup
+			console.log({
+				timePerRound,
+				winScore,
+				difficulty,
+			})
+
+			setSnackbarStatus('success')
+			setSnackbarOpen(true)
+			setDialogOpen(true)
+		} catch (err) {
+			console.error(err)
+			setSnackbarStatus('error')
+			setSnackbarOpen(true)
+		}
 	}
 
 	return (
@@ -46,6 +71,12 @@ const Settings = () => {
 					width: 450,
 				}}
 			>
+				<Stack direction='row' justifyContent='space-between' mb={2}>
+					<Button variant='outlined' onClick={() => navigate('/')}>
+						Назад
+					</Button>
+				</Stack>
+
 				<Typography variant='h4' mb={3} fontWeight={700}>
 					Настройки игры
 				</Typography>
@@ -59,10 +90,13 @@ const Settings = () => {
 						onChange={e => setTimePerRound(Number(e.target.value))}
 						fullWidth
 					>
-						{timesPerRound.map((time: number) => (
-							<MenuItem value={time}>{time}</MenuItem>
+						{timesPerRound.map(time => (
+							<MenuItem key={time} value={time}>
+								{time}
+							</MenuItem>
 						))}
 					</TextField>
+
 					<TextField
 						select
 						type='number'
@@ -71,23 +105,12 @@ const Settings = () => {
 						onChange={e => setWinScore(Number(e.target.value))}
 						fullWidth
 					>
-						{winScores.map((time: number) => (
-							<MenuItem value={time}>{time}</MenuItem>
+						{winScores.map(score => (
+							<MenuItem key={score} value={score}>
+								{score}
+							</MenuItem>
 						))}
 					</TextField>
-
-					{/* <TextField
-						select
-						label='Язык'
-						value={language}
-						onChange={e => setLanguage(e.target.value)}
-						fullWidth
-					>
-						<MenuItem value='ru'>Русский</MenuItem>
-						<MenuItem value='en'>English</MenuItem>
-						<MenuItem value='es'>Español</MenuItem>
-						<MenuItem value='zh'>中文</MenuItem>
-					</TextField> */}
 
 					<TextField
 						select
@@ -96,9 +119,9 @@ const Settings = () => {
 						onChange={e => setDifficulty(e.target.value)}
 						fullWidth
 					>
-						<MenuItem value='easy'>Лёгкая</MenuItem>
-						<MenuItem value='medium'>Средняя</MenuItem>
-						<MenuItem value='hard'>Сложная</MenuItem>
+						{difficulties.map((diff: { title: string; value: string }) => (
+							<MenuItem value={diff.value}>{diff.title}</MenuItem>
+						))}
 					</TextField>
 
 					<Button variant='contained' size='large' onClick={handleSubmit}>
@@ -106,6 +129,18 @@ const Settings = () => {
 					</Button>
 				</Stack>
 			</Paper>
+
+			<StatusAlert
+				isOpen={snackbarOpen}
+				setIsOpen={setSnackbarOpen}
+				status={snackbarStatus}
+			/>
+			<SaveDialog
+				isOpen={dialogOpen}
+				setIsOpen={setDialogOpen}
+				status={'Настройки успешно сохранены'}
+				message={'Все параметры успешно обновлены. Вернуться на главное меню?'}
+			/>
 		</Box>
 	)
 }
