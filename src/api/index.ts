@@ -9,7 +9,7 @@ import axios from 'axios'
 // } from '../utils/tokenStorage'
 // import { refresh as refreshTokenRequest } from './auth'
 import * as teams from './teams'
-
+import * as packs from './packs'
 
 export const createApi = () => {
 	const instance = axios.create({
@@ -68,5 +68,6 @@ export const createApi = () => {
 }
 
 export const backend = {
-	teams
+	teams,
+	packs,
 }

@@ -7,6 +7,8 @@ import EditTeam from '../components/EditTeam'
 import EditAvatarModal from '../components/EditAvatarModal'
 import { useTeams } from '../hooks/useTeamsData'
 import type { ITeam, IUpdateTeam } from '../interfaces/ITeams'
+import LoadingDisplay from '../components/LoadingDisplay'
+import LoadingError from '../components/LoadingError'
 
 const Teams = () => {
 	const navigate = useNavigate()
@@ -17,11 +19,11 @@ const Teams = () => {
 	const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null)
 
 	if (teamsQuery.isLoading) {
-		return <div>Загрузка...</div>
+		return <LoadingDisplay />
 	}
 
 	if (teamsQuery.isError) {
-		return <div>Ошибка загрузки команд</div>
+		return <LoadingError title={'Ошибка загрузки команд'} />
 	}
 
 	const teams = teamsQuery.data || []
