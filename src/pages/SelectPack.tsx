@@ -8,8 +8,6 @@ import {
 	Grid,
 	Card,
 	CardActionArea,
-	CardContent,
-	CardMedia,
 } from '@mui/material'
 import { useNavigate } from 'react-router-dom'
 import { usePacks } from '../hooks/usePacksData'

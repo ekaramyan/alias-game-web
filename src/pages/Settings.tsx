@@ -11,6 +11,10 @@ import {
 import { useNavigate } from 'react-router-dom'
 import SaveDialog from '../components/SaveDialog'
 import StatusAlert from '../components/StatusAlert'
+import { useSettings } from '../hooks/useSettingsData'
+import type { ISetting } from '../interfaces/ISettings'
+import LoadingDisplay from '../components/LoadingDisplay'
+import LoadingError from '../components/LoadingError'
 
 const timesPerRound = [30, 60, 90, 120]
 const winScores = [10, 25, 50, 75, 100, 125, 150]
@@ -22,10 +26,17 @@ const difficulties = [
 
 const Settings = () => {
 	const navigate = useNavigate()
+	const { settingQuery, createSetting, updateSetting } = useSettings()
 
-	const [timePerRound, setTimePerRound] = useState(timesPerRound[1])
-	const [winScore, setWinScore] = useState(winScores[1])
-	const [difficulty, setDifficulty] = useState('medium')
+	const settingData = settingQuery.data
+
+	const [settingsState, setSettingsState] = useState(() => {
+		return {
+			timePerRound: settingData?.time_per_round || timesPerRound[1],
+			winScore: settingData?.win_score || winScores[1],
+			difficulty: settingData?.difficulty || 'medium',
+		}
+	})
 
 	const [snackbarOpen, setSnackbarOpen] = useState(false)
 	const [snackbarStatus, setSnackbarStatus] = useState<'success' | 'error'>(
@@ -36,12 +47,17 @@ const Settings = () => {
 
 	const handleSubmit = () => {
 		try {
-			// mockup
-			console.log({
-				timePerRound,
-				winScore,
-				difficulty,
-			})
+			const payload = {
+				time_per_round: settingsState.timePerRound,
+				win_score: settingsState.winScore,
+				difficulty: settingsState.difficulty,
+			} as ISetting
+
+			if (settingData) {
+				updateSetting.mutate({ data: payload })
+			} else {
+				createSetting.mutate({ data: payload })
+			}
 
 			setSnackbarStatus('success')
 			setSnackbarOpen(true)
@@ -53,6 +69,14 @@ const Settings = () => {
 		}
 	}
 
+	if (settingQuery.isLoading) {
+		return <LoadingDisplay />
+	}
+
+	if (settingQuery.isError) {
+		return <LoadingError title={'Ошибка загрузки настроек'} />
+	}
+
 	return (
 		<Box
 			sx={{
@@ -61,6 +85,7 @@ const Settings = () => {
 				alignItems: 'center',
 				justifyContent: 'center',
 				background: '#f5f5f5',
+				p: 2,
 			}}
 		>
 			<Paper
@@ -86,8 +111,13 @@ const Settings = () => {
 						select
 						type='number'
 						label='Время раунда'
-						value={timePerRound}
-						onChange={e => setTimePerRound(Number(e.target.value))}
+						value={settingsState.timePerRound}
+						onChange={e =>
+							setSettingsState(prev => ({
+								...prev,
+								timePerRound: Number(e.target.value),
+							}))
+						}
 						fullWidth
 					>
 						{timesPerRound.map(time => (
@@ -101,8 +131,13 @@ const Settings = () => {
 						select
 						type='number'
 						label='Очки для победы'
-						value={winScore}
-						onChange={e => setWinScore(Number(e.target.value))}
+						value={settingsState.winScore}
+						onChange={e =>
+							setSettingsState(prev => ({
+								...prev,
+								winScore: Number(e.target.value),
+							}))
+						}
 						fullWidth
 					>
 						{winScores.map(score => (
@@ -115,8 +150,13 @@ const Settings = () => {
 					<TextField
 						select
 						label='Сложность'
-						value={difficulty}
-						onChange={e => setDifficulty(e.target.value)}
+						value={settingsState.difficulty}
+						onChange={e =>
+							setSettingsState(prev => ({
+								...prev,
+								difficulty: e.target.value,
+							}))
+						}
 						fullWidth
 					>
 						{difficulties.map((diff: { title: string; value: string }) => (
